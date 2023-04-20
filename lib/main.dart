@@ -1,16 +1,17 @@
+import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_rss/common/bloc_utils.dart';
 import 'package:flutter_rss/injection/injection.dart';
 import 'package:flutter_rss/router/router.dart';
 
 void main() {
   configureDependencies();
-  runApp(MyApp());
+  Bloc.observer = getIt<MyBlocObserver>();
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  MyApp({super.key});
-
-  final _appRouter = AppRouter();
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -19,7 +20,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      routerConfig: _appRouter.config(),
+      routerConfig: getIt<AppRouter>().config(),
     );
   }
 }
