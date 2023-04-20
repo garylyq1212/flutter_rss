@@ -4,7 +4,6 @@ import 'package:flutter_rss/coordinator/coordinator.dart';
 import 'package:flutter_rss/injection/injection.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_rss/presentation/bloc/feed/feed_bloc.dart';
-import 'package:flutter_rss/repository/feed_repository.dart';
 
 @RoutePage()
 class HomeScreen extends StatefulWidget implements AutoRouteWrapper {
@@ -51,6 +50,11 @@ class _HomeScreenState extends State<HomeScreen> {
             return Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
+                if (_feedBloc.myFeeds.isEmpty)
+                  const SizedBox.shrink()
+                else
+                  Text(_feedBloc.myFeeds.first.title),
+                const SizedBox(height: 16),
                 ElevatedButton(
                   onPressed: () {
                     _feedBloc.add(GetFeeds());
