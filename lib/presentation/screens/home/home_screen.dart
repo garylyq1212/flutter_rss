@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_rss/coordinator/coordinator.dart';
 import 'package:flutter_rss/injection/injection.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_rss/model/my_feed.dart';
 import 'package:flutter_rss/presentation/bloc/feed/feed_bloc.dart';
+import 'package:flutter_rss/presentation/screens/home/widgets/feed_item.dart';
 
 @RoutePage()
 class HomeScreen extends StatefulWidget implements AutoRouteWrapper {
@@ -40,7 +42,7 @@ class _HomeScreenState extends State<HomeScreen> {
       appBar: AppBar(
         title: const Text('Home'),
       ),
-      body: Center(
+      body: SingleChildScrollView(
         child: BlocBuilder<FeedBloc, FeedState>(
           builder: (context, state) {
             if (state is LoadingFeeds) {
@@ -48,12 +50,11 @@ class _HomeScreenState extends State<HomeScreen> {
             }
 
             return Column(
-              mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
                 if (_feedBloc.myFeeds.isEmpty)
                   const SizedBox.shrink()
                 else
-                  Text(_feedBloc.myFeeds.first.title),
+                  FeedItem(myFeed: _feedBloc.myFeeds.first),
                 const SizedBox(height: 16),
                 ElevatedButton(
                   onPressed: () {
