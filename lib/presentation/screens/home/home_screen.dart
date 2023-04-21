@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_rss/coordinator/coordinator.dart';
 import 'package:flutter_rss/injection/injection.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_rss/model/my_feed.dart';
+
 import 'package:flutter_rss/presentation/bloc/feed/feed_bloc.dart';
 import 'package:flutter_rss/presentation/screens/home/widgets/feed_item.dart';
 
@@ -30,10 +30,30 @@ class HomeScreen extends StatefulWidget implements AutoRouteWrapper {
 class _HomeScreenState extends State<HomeScreen> {
   late FeedBloc _feedBloc;
 
+  int offset = 0;
+  int limit = 10;
+  final ScrollController _scrollController = ScrollController();
+
   @override
   void initState() {
     super.initState();
+    _scrollController.addListener(_scrollListener);
     _feedBloc = BlocProvider.of<FeedBloc>(context);
+    _feedBloc.add(GetFeeds(offset: offset, limit: limit, refresh: true));
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _scrollListener() async {
+    if (_scrollController.offset >=
+            _scrollController.position.maxScrollExtent &&
+        !_scrollController.position.outOfRange) {
+      _feedBloc.add(GetFeeds(offset: offset + limit));
+    }
   }
 
   @override
@@ -42,34 +62,37 @@ class _HomeScreenState extends State<HomeScreen> {
       appBar: AppBar(
         title: const Text('Home'),
       ),
-      body: SingleChildScrollView(
+      body: RefreshIndicator(
+        onRefresh: () async {
+          _feedBloc.add(GetFeeds(offset: 0, limit: 10, refresh: true));
+        },
         child: BlocBuilder<FeedBloc, FeedState>(
           builder: (context, state) {
-            if (state is LoadingFeeds) {
+            if (state is LoadingFeeds && _feedBloc.myFeeds.isEmpty) {
               return const Text('Loading');
             }
 
-            return Column(
-              children: <Widget>[
-                if (_feedBloc.myFeeds.isEmpty)
-                  const SizedBox.shrink()
-                else
-                  FeedItem(myFeed: _feedBloc.myFeeds.first),
-                const SizedBox(height: 16),
-                ElevatedButton(
-                  onPressed: () {
-                    _feedBloc.add(GetFeeds());
-                  },
-                  child: const Text('Fetch Feeds'),
-                ),
-                const SizedBox(height: 16),
-                ElevatedButton(
-                  onPressed: () {
-                    getIt<Coordinator>().navigateToLoginScreen(context);
-                  },
-                  child: const Text('Navigate'),
-                ),
-              ],
+            return Padding(
+              padding: const EdgeInsets.symmetric(vertical: 16.0),
+              child: Column(
+                children: [
+                  Expanded(
+                    child: ListView.builder(
+                      controller: _scrollController,
+                      physics: const BouncingScrollPhysics(),
+                      itemCount: _feedBloc.myFeeds.length,
+                      itemBuilder: (context, index) {
+                        return FeedItem(
+                          myFeed: _feedBloc.myFeeds[index],
+                        );
+                      },
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  if (state is LoadingFeeds && _feedBloc.myFeeds.isNotEmpty)
+                    const CircularProgressIndicator()
+                ],
+              ),
             );
           },
         ),

@@ -23,8 +23,8 @@ class MyFeed extends Equatable {
     }
 
     return MyFeed(
-      title: rssItem.title ?? '',
-      description: rssItem.description ?? '',
+      title: rssItem.title ?? 'Title',
+      description: rssItem.description ?? 'Description',
       imageUrl: imgUrl,
     );
   }

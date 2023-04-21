@@ -11,25 +11,59 @@ part 'feed_state.dart';
 class FeedBloc extends Bloc<FeedEvent, FeedState> {
   final FeedRepository _feedRepository;
 
-  late List<MyFeed> _myFeeds;
-
   List<MyFeed> get myFeeds => _myFeeds;
 
-  FeedBloc(this._feedRepository) : super(FeedInitial()) {
-    _myFeeds = [];
+  List<MyFeed> _myFeeds = [];
+  final _feedList = <MyFeed>[];
+  final _feedListFromApi = <MyFeed>[];
 
+  FeedBloc(this._feedRepository) : super(FeedInitial()) {
     on<GetFeeds>((event, emit) async {
       emit(LoadingFeeds());
 
-      final myFeedsResponse = await _feedRepository.fetchFeeds();
+      if (!event.refresh) {
+        _myFeeds = await _paginateFeedList(
+          _feedListFromApi,
+          offset: event.offset,
+          limit: event.limit,
+        );
+      } else {
+        _feedListFromApi.clear();
+        _feedList.clear();
 
-      myFeedsResponse.fold(
-        // TODO(Gary): Emit error state
-        (err) => Exception(),
-        (myFeedList) => _myFeeds = myFeedList,
-      );
+        final myFeedsResponse = await _feedRepository.fetchFeeds();
+        myFeedsResponse.fold(
+          // TODO(Gary): Emit error state
+          (err) => Exception(),
+          (myFeedList) async {
+            _feedListFromApi.addAll(myFeedList);
+
+            if (event.refresh) _feedList.clear();
+
+            _myFeeds = await _paginateFeedList(
+              _feedListFromApi,
+              offset: event.offset,
+              limit: event.limit,
+            );
+          },
+        );
+      }
 
       emit(SuccessLoadFeeds());
     });
+  }
+
+  Future<List<MyFeed>> _paginateFeedList(List<MyFeed> myFeedList,
+      {int offset = 0, int limit = 10}) async {
+    if (_feedList.length < myFeedList.length) {
+      if (offset > 1 && offset <= myFeedList.length) {
+        await Future.delayed(const Duration(milliseconds: 500));
+        _feedList.addAll(myFeedList.sublist(offset, offset + limit));
+      } else {
+        _feedList.addAll(myFeedList.sublist(0, limit));
+      }
+    }
+
+    return _feedList;
   }
 }

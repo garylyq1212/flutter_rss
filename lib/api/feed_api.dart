@@ -1,8 +1,5 @@
-import 'dart:developer';
-
 import 'package:dio/dio.dart';
 import 'package:flutter_rss/common/exception.dart';
-import 'package:flutter_rss/model/my_feed.dart';
 import 'package:webfeed/webfeed.dart';
 import 'package:injectable/injectable.dart';
 
