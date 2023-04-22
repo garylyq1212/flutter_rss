@@ -9,7 +9,7 @@ import 'package:injectable/injectable.dart';
 class MyCoordinatorImpl implements Coordinator {
   @override
   void navigateToHomeScreen(BuildContext context) {
-    context.router.push(const HomeRoute());
+    context.router.replace(const HomeRoute());
   }
 
   @override

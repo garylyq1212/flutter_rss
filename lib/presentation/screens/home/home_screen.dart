@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_rss/coordinator/coordinator.dart';
@@ -41,6 +39,8 @@ class _HomeScreenState extends State<HomeScreen> {
   int limit = 10;
   final ScrollController _scrollController = ScrollController();
 
+  String name = '';
+
   @override
   void initState() {
     super.initState();
@@ -48,7 +48,6 @@ class _HomeScreenState extends State<HomeScreen> {
     _feedBloc = BlocProvider.of<FeedBloc>(context);
     _authBloc = BlocProvider.of<AuthBloc>(context);
     _authBloc.add(GetUser());
-    _feedBloc.add(GetFeeds(offset: offset, limit: limit, refresh: true));
   }
 
   @override
@@ -69,50 +68,80 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Home'),
+        title: Text(name.isEmpty ? 'Home' : 'Welcome $name'),
+        actions: [
+          ElevatedButton.icon(
+            onPressed: () {
+              _authBloc.add(Logout());
+            },
+            icon: const Icon(Icons.logout),
+            label: const SizedBox.shrink(),
+          ),
+        ],
       ),
       body: RefreshIndicator(
         onRefresh: () async {
+          _authBloc.add(GetUser());
           _feedBloc.add(GetFeeds(offset: 0, limit: 10, refresh: true));
         },
-        child: BlocListener<AuthBloc, AuthState>(
+        child: BlocConsumer<AuthBloc, AuthState>(
           listener: (context, state) {
-            log('STATE: $state');
+            if (state is DoneLoadUser) {
+              setState(() {
+                name = state.user.name;
+              });
 
-            if (state is FailedLoadUser) {
+              _feedBloc.add(GetFeeds(
+                offset: offset,
+                limit: limit,
+                refresh: true,
+              ));
+            }
+
+            if (state is FailedLoadUser || state is SucessLogoutUser) {
               getIt<Coordinator>().navigateToLoginScreen(context);
             }
           },
-          child: BlocBuilder<FeedBloc, FeedState>(
-            builder: (context, state) {
-              if (state is LoadingFeeds && _feedBloc.myFeeds.isEmpty) {
-                return const Text('Loading');
-              }
-
-              return Padding(
-                padding: const EdgeInsets.symmetric(vertical: 16.0),
-                child: Column(
-                  children: [
-                    Expanded(
-                      child: ListView.builder(
-                        controller: _scrollController,
-                        physics: const BouncingScrollPhysics(),
-                        itemCount: _feedBloc.myFeeds.length,
-                        itemBuilder: (context, index) {
-                          return FeedItem(
-                            myFeed: _feedBloc.myFeeds[index],
-                          );
-                        },
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    if (state is LoadingFeeds && _feedBloc.myFeeds.isNotEmpty)
-                      const CircularProgressIndicator()
-                  ],
-                ),
+          builder: (context, state) {
+            if (state is LoadingUser) {
+              return const Center(
+                child: CircularProgressIndicator(),
               );
-            },
-          ),
+            }
+
+            return BlocBuilder<FeedBloc, FeedState>(
+              builder: (context, feedState) {
+                if (state is LoadingFeeds && _feedBloc.myFeeds.isEmpty) {
+                  return const Center(
+                    child: CircularProgressIndicator(),
+                  );
+                }
+
+                return Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 16.0),
+                  child: Column(
+                    children: [
+                      Expanded(
+                        child: ListView.builder(
+                          controller: _scrollController,
+                          physics: const BouncingScrollPhysics(),
+                          itemCount: _feedBloc.myFeeds.length,
+                          itemBuilder: (context, index) {
+                            return FeedItem(
+                              myFeed: _feedBloc.myFeeds[index],
+                            );
+                          },
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      if (state is LoadingFeeds && _feedBloc.myFeeds.isNotEmpty)
+                        const CircularProgressIndicator()
+                    ],
+                  ),
+                );
+              },
+            );
+          },
         ),
       ),
     );

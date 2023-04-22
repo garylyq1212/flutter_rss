@@ -28,3 +28,7 @@ class FailedLoadUser extends AuthState {
   @override
   List<Object> get props => [message];
 }
+
+class SuccessLoginUser extends AuthState {}
+
+class SucessLogoutUser extends AuthState {}
