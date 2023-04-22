@@ -3,9 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_rss/common/bloc_utils.dart';
 import 'package:flutter_rss/injection/injection.dart';
 import 'package:flutter_rss/router/router.dart';
+import 'package:flutter_rss/service/hive_service.dart';
 
-void main() {
+void main() async {
   configureDependencies();
+  await getIt<HiveService>().init();
   Bloc.observer = getIt<MyBlocObserver>();
   runApp(const MyApp());
 }

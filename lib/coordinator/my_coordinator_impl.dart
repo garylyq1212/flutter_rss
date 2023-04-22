@@ -14,7 +14,7 @@ class MyCoordinatorImpl implements Coordinator {
 
   @override
   void navigateToLoginScreen(BuildContext context) {
-    context.router.push(const LoginRoute());
+    context.router.replace(const LoginRoute());
   }
 
   @override

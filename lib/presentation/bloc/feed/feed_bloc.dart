@@ -1,6 +1,6 @@
 import 'package:bloc/bloc.dart';
 import 'package:flutter_rss/model/my_feed.dart';
-import 'package:flutter_rss/repository/feed_repository.dart';
+import 'package:flutter_rss/repositories/feed_repository/feed_repository.dart';
 import 'package:injectable/injectable.dart';
 import 'package:meta/meta.dart';
 

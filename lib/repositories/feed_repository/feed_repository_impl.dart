@@ -1,7 +1,7 @@
 import 'package:dartz/dartz.dart';
 import 'package:flutter_rss/api/feed_api.dart';
 import 'package:flutter_rss/model/my_feed.dart';
-import 'package:flutter_rss/repository/feed_repository.dart';
+import 'package:flutter_rss/repositories/feed_repository/feed_repository.dart';
 import 'package:injectable/injectable.dart';
 
 @LazySingleton(as: FeedRepository)
