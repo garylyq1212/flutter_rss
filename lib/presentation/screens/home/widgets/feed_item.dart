@@ -1,4 +1,6 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+
 import 'package:flutter_rss/coordinator/coordinator.dart';
 import 'package:flutter_rss/injection/injection.dart';
 import 'package:flutter_rss/model/my_feed.dart';
@@ -33,12 +35,16 @@ class FeedItem extends StatelessWidget {
                     topLeft: Radius.circular(16),
                     bottomLeft: Radius.circular(16),
                   ),
-                  child: Image.network(
-                    myFeed.imageUrl.isNotEmpty
+                  child: CachedNetworkImage(
+                    imageUrl: myFeed.imageUrl.isNotEmpty
                         ? myFeed.imageUrl
                         : 'https://via.placeholder.com/160?text=IMAGE',
                     fit: BoxFit.fitHeight,
                     height: 160,
+                    errorWidget: (context, url, error) => Image.asset(
+                      'assets/images/placeholder.png',
+                      height: 160,
+                    ),
                   ),
                 ),
                 const SizedBox(width: 16),

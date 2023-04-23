@@ -1,4 +1,5 @@
 import 'package:auto_route/auto_route.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_rss/model/my_feed.dart';
 
@@ -17,13 +18,18 @@ class FeedDetailsScreen extends StatelessWidget {
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Image.network(
-            myFeed.imageUrl.isNotEmpty
+          CachedNetworkImage(
+            imageUrl: myFeed.imageUrl.isNotEmpty
                 ? myFeed.imageUrl
                 : 'https://via.placeholder.com/400x200?text=IMAGE',
             fit: BoxFit.fitWidth,
             width: 400,
             height: 250,
+            errorWidget: (context, url, error) => Image.asset(
+              'assets/images/placeholder.png',
+              width: 400,
+              height: 250,
+            ),
           ),
           const SizedBox(height: 40),
           Padding(
