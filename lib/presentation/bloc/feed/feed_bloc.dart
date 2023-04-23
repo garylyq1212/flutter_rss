@@ -1,4 +1,5 @@
 import 'package:bloc/bloc.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_rss/model/my_feed.dart';
 import 'package:flutter_rss/repositories/feed_repository/feed_repository.dart';
 import 'package:injectable/injectable.dart';
@@ -27,14 +28,17 @@ class FeedBloc extends Bloc<FeedEvent, FeedState> {
           offset: event.offset,
           limit: event.limit,
         );
+
+        emit(SuccessLoadFeeds());
       } else {
         _feedListFromApi.clear();
         _feedList.clear();
 
         final myFeedsResponse = await _feedRepository.fetchFeeds();
-        myFeedsResponse.fold(
-          // TODO(Gary): Emit error state
-          (err) => Exception(),
+        return myFeedsResponse.fold(
+          (err) {
+            return emit(FailedLoadFeeds(exception: err));
+          },
           (myFeedList) async {
             _feedListFromApi.addAll(myFeedList);
 
@@ -45,11 +49,11 @@ class FeedBloc extends Bloc<FeedEvent, FeedState> {
               offset: event.offset,
               limit: event.limit,
             );
+
+            emit(SuccessLoadFeeds());
           },
         );
       }
-
-      emit(SuccessLoadFeeds());
     });
   }
 

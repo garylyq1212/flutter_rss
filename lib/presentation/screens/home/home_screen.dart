@@ -111,9 +111,50 @@ class _HomeScreenState extends State<HomeScreen> {
 
             return BlocBuilder<FeedBloc, FeedState>(
               builder: (context, feedState) {
-                if (state is LoadingFeeds && _feedBloc.myFeeds.isEmpty) {
+                if (feedState is LoadingFeeds && _feedBloc.myFeeds.isEmpty) {
                   return const Center(
                     child: CircularProgressIndicator(),
+                  );
+                }
+
+                if (feedState is FailedLoadFeeds) {
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 30),
+                    child: Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Text(
+                            'Something went wrong!',
+                            style: TextStyle(
+                                fontSize: 28, fontWeight: FontWeight.w700),
+                          ),
+                          const SizedBox(height: 16),
+                          SizedBox(
+                            width: double.infinity,
+                            child: ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 8),
+                                backgroundColor: Colors.blueAccent,
+                              ),
+                              onPressed: () {
+                                _feedBloc.add(
+                                  GetFeeds(offset: 0, limit: 10, refresh: true),
+                                );
+                              },
+                              child: const Text(
+                                'Refresh',
+                                style: TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                   );
                 }
 
@@ -134,7 +175,8 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                       ),
                       const SizedBox(height: 16),
-                      if (state is LoadingFeeds && _feedBloc.myFeeds.isNotEmpty)
+                      if (feedState is LoadingFeeds &&
+                          _feedBloc.myFeeds.isNotEmpty)
                         const CircularProgressIndicator()
                     ],
                   ),

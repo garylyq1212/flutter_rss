@@ -1,19 +1,37 @@
+import 'dart:io';
+
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:injectable/injectable.dart';
 
+@Singleton()
 class NetworkService {
-  final Connectivity connectivity;
+  Future<bool> isConnected() async {
+    final result = await Connectivity().checkConnectivity();
+    bool isConnected = false;
 
-  NetworkService(this.connectivity);
+    switch (result) {
+      case ConnectivityResult.wifi:
+        isConnected = await _hasConnection();
+        return isConnected;
+      case ConnectivityResult.mobile:
+        isConnected = await _hasConnection();
+        return isConnected;
+      default:
+        return isConnected;
+    }
+  }
 
-  // Future<bool> isConnected() async {
-  //   final result = await connectivity.checkConnectivity();
+  Future<bool> _hasConnection() async {
+    try {
+      final result = await InternetAddress.lookup('1.1.1.1');
 
-  //   switch (result) {
-  //     case ConnectivityResult.wifi:
+      if (result.isNotEmpty) {
+        return true;
+      }
 
-  //       break;
-  //     default:
-  //   }
-
-  // }
+      return false;
+    } on SocketException catch (_) {
+      return false;
+    }
+  }
 }
