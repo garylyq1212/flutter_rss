@@ -2,15 +2,17 @@
 
 A new Flutter project.
 
+- **State management: Bloc**
+  - I'm familiar with Bloc, and I want to spend more time on how to architecture the code rather than scratching my head around other state management tools.
+- **Navigation: AutoRouter**
+  - Same reason as above. 
+
 ## Getting Started
 
-This project is a starting point for a Flutter application.
+Install the dependencies.
+```
+flutter pub get
+```
 
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## Showcase of the app
+![flutter_rss.gif](flutter_rss.gif)
