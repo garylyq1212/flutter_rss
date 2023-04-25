@@ -55,8 +55,10 @@ class _LoginScreenState extends State<LoginScreen> {
             }
           },
           child: Container(
-            margin: const EdgeInsets.symmetric(vertical: 250, horizontal: 24),
+            margin: const EdgeInsets.symmetric(horizontal: 24),
+            height: MediaQuery.of(context).size.height,
             child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 const Text(
                   'Flutter RSS',
